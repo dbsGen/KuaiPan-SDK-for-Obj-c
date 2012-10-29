@@ -1,0 +1,9 @@
+[submodule "Vendor/AFNetworking"]
+	path = Vendor/AFNetworking
+	url = git://github.com/AFNetworking/AFNetworking.git
+[submodule "Vendor/RNCryptor"]
+	path = Vendor/RNCryptor
+	url = git://github.com/rnapier/RNCryptor.git
+[submodule "Vendor/json-framework"]
+	path = Vendor/json-framework
+	url = git://github.com/stig/json-framework.git
