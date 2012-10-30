@@ -8,21 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "AFNetworking.h"
-
-#pragma mark - define
-
-#define kKuaiPanApiVersion  @"1.0"
-
-#define kBaseURLString      @"https://openapi.kuaipan.cn/"
-
-#define kRequestTokenURLAdd @"open/requestToken"
-#define kAccessTokenURLAdd  @"open/accessToken"
-#define kUserInfoURLAdd     @"1/account_info"
-#define kMetadataURLAdd     @"1/metadata"
-#define kCreateFolderURLAdd @"1/fileops/create_folder"
-
-#define kAuthorizeURLString @"https://www.kuaipan.cn/api.php"
-
+#import "KPConfig.h"
 
 
 #define mark - tools

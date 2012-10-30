@@ -20,6 +20,9 @@
 		5F1333D7163E327F00041DE5 /* SBJsonUTF8Stream.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F1333CA163E327F00041DE5 /* SBJsonUTF8Stream.m */; };
 		5F1333D8163E327F00041DE5 /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F1333CC163E327F00041DE5 /* SBJsonWriter.m */; };
 		5F1333E1163E37EC00041DE5 /* MTSelecterTransation.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F1333E0163E37EC00041DE5 /* MTSelecterTransation.m */; };
+		5F27BFF2163F6EAA00B4C89A /* MTConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F27BFF1163F6EAA00B4C89A /* MTConfig.m */; };
+		5F27BFF5163F6F2E00B4C89A /* config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5F27BFF4163F6F2E00B4C89A /* config.plist */; };
+		5F27BFF8163F6F4600B4C89A /* KPConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F27BFF7163F6F4600B4C89A /* KPConfig.m */; };
 		5F4E69C6163A8EC900947D39 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F4E69C5163A8EC900947D39 /* UIKit.framework */; };
 		5F4E69C8163A8EC900947D39 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F4E69C7163A8EC900947D39 /* Foundation.framework */; };
 		5F4E69CA163A8EC900947D39 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F4E69C9163A8EC900947D39 /* CoreGraphics.framework */; };
@@ -77,6 +80,11 @@
 		5F1333CC163E327F00041DE5 /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
 		5F1333DF163E37EC00041DE5 /* MTSelecterTransation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTSelecterTransation.h; sourceTree = "<group>"; };
 		5F1333E0163E37EC00041DE5 /* MTSelecterTransation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MTSelecterTransation.m; sourceTree = "<group>"; };
+		5F27BFF0163F6EAA00B4C89A /* MTConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTConfig.h; sourceTree = "<group>"; };
+		5F27BFF1163F6EAA00B4C89A /* MTConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MTConfig.m; sourceTree = "<group>"; };
+		5F27BFF4163F6F2E00B4C89A /* config.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = config.plist; sourceTree = "<group>"; };
+		5F27BFF6163F6F4600B4C89A /* KPConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KPConfig.h; sourceTree = "<group>"; };
+		5F27BFF7163F6F4600B4C89A /* KPConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KPConfig.m; sourceTree = "<group>"; };
 		5F4E69C1163A8EC800947D39 /* KuaiPan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KuaiPan.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F4E69C5163A8EC900947D39 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		5F4E69C7163A8EC900947D39 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -178,6 +186,7 @@
 		5F1333DD163E37EC00041DE5 /* Utile */ = {
 			isa = PBXGroup;
 			children = (
+				5F27BFEF163F6EAA00B4C89A /* Config */,
 				5F1333DE163E37EC00041DE5 /* SelecterTransation */,
 			);
 			path = Utile;
@@ -190,6 +199,15 @@
 				5F1333E0163E37EC00041DE5 /* MTSelecterTransation.m */,
 			);
 			path = SelecterTransation;
+			sourceTree = "<group>";
+		};
+		5F27BFEF163F6EAA00B4C89A /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				5F27BFF0163F6EAA00B4C89A /* MTConfig.h */,
+				5F27BFF1163F6EAA00B4C89A /* MTConfig.m */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 		5F4E69B6163A8EC800947D39 = {
@@ -292,6 +310,9 @@
 				5F4E6A0A163A907300947D39 /* KPOAuth.m */,
 				5F4E6A16163A990800947D39 /* KPTools.h */,
 				5F4E6A17163A990800947D39 /* KPTools.m */,
+				5F27BFF4163F6F2E00B4C89A /* config.plist */,
+				5F27BFF6163F6F4600B4C89A /* KPConfig.h */,
+				5F27BFF7163F6F4600B4C89A /* KPConfig.m */,
 			);
 			path = SDK;
 			sourceTree = "<group>";
@@ -353,6 +374,7 @@
 				5F4E69DA163A8EC900947D39 /* Default@2x.png in Resources */,
 				5F4E69DC163A8EC900947D39 /* Default-568h@2x.png in Resources */,
 				5F4E69E2163A8EC900947D39 /* KPViewController.xib in Resources */,
+				5F27BFF5163F6F2E00B4C89A /* config.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -393,6 +415,8 @@
 				5F1333E1163E37EC00041DE5 /* MTSelecterTransation.m in Sources */,
 				5FB21D39163E5CBC0081E575 /* KPOAuthInfo.m in Sources */,
 				FE9116E8163ED78E00D380D8 /* KPAuthorizeViewController.m in Sources */,
+				5F27BFF2163F6EAA00B4C89A /* MTConfig.m in Sources */,
+				5F27BFF8163F6F4600B4C89A /* KPConfig.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -473,6 +497,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KuaiPan/KuaiPan-Prefix.pch";
 				INFOPLIST_FILE = "KuaiPan/KuaiPan-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SDKROOT)/usr/lib/system\"",
@@ -488,6 +513,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KuaiPan/KuaiPan-Prefix.pch";
 				INFOPLIST_FILE = "KuaiPan/KuaiPan-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SDKROOT)/usr/lib/system\"",

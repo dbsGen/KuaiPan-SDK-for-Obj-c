@@ -57,9 +57,18 @@
 
 #pragma mark - net work
 
+- (NSOperationQueue *)queue
+{
+    if (!_queue) {
+        _queue = [[NSOperationQueue alloc] init];
+        [_queue setSuspended:NO];
+    }
+    return _queue;
+}
+
 - (void)startRequest
 {
-    if ([self.delegate respondsToSelector:@selector(oauthDidStartGetRequestToken::)]) {
+    if ([self.delegate respondsToSelector:@selector(oauthDidStartGetRequestToken:)]) {
         [self.delegate oauthDidStartGetRequestToken:self];
     }
     
