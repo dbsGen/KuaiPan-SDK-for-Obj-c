@@ -26,10 +26,12 @@ static __strong MTConfig *__defaultConfig;
     }
 }
 
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_6_0
 - (void)dealloc
 {
     if (_queue) dispatch_release(_queue);
 }
+#endif
 
 - (id)initWithPath:(NSString *)path
 {

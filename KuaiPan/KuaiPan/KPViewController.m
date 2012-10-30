@@ -95,6 +95,25 @@ void showAlert(NSString *content) {
                action:@selector(createFolderClick)
      forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:button];
+    
+    
+    button = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    button.frame = CGRectMake(100, 205, 120, 33);
+    [button setTitle:@"Upload"
+            forState:UIControlStateNormal];
+    [button addTarget:self
+               action:@selector(uploadClick)
+     forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:button];
+    
+    button = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    button.frame = CGRectMake(100, 248, 120, 33);
+    [button setTitle:@"Download"
+            forState:UIControlStateNormal];
+    [button addTarget:self
+               action:@selector(downloadClick)
+     forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:button];
 }
 
 - (void)didReceiveMemoryWarning
@@ -110,6 +129,7 @@ void showAlert(NSString *content) {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSDictionary *dic = [userDefaults objectForKey:@"accessToken"];
     if (dic) {
+        NSLog(@"Saved accessToken : %@", dic);
         return [[KPOAuthInfo alloc] initWithSourceDictionary:dic];
     }
     return nil;
@@ -182,6 +202,28 @@ void showAlert(NSString *content) {
     }
 }
 
+- (void)client:(KPClient *)client uploadFile:(NSDictionary *)dictionary withError:(NSError *)error
+{
+    if (error) {
+        showAlert(@"获取信息失败");
+        NSLog(@"%@", error);
+    }else {
+        showAlert(@"获取信息成功");
+        NSLog(@"%@", dictionary);
+    }
+}
+
+- (void)client:(KPClient *)client downloadFile:(NSData *)file withError:(NSError *)error
+{
+    if (error) {
+        showAlert(@"下载失败");
+        NSLog(@"%@", error);
+    }else {
+        showAlert(@"下载成功");
+        NSLog(@"%d", file.length);
+    }
+}
+
 #pragma mark - action 
 
 - (void)missAuthorizeController
@@ -221,8 +263,7 @@ void showAlert(NSString *content) {
 
 - (void)getMetadata
 {
-    NSString *path = @"/app_folder/我的应用/云酷/";
-    path = [path stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSString *path = @"/我的应用/云酷/";
     [_client metadataWithPath:path
                          list:nil
                     fileLimit:nil
@@ -234,8 +275,21 @@ void showAlert(NSString *content) {
 
 - (void)createFolderClick
 {
-    [_client createFolderWithRoot:@"app_folder"
-                             path:@"/我的应用/云酷"];
+    [_client createFolderWithPath:@"/我的应用/云酷"];
+}
+
+- (void)uploadClick
+{
+    [_client uploadFile:@"/我的应用/云酷/test.jpg"
+                   file:[NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"qb" ofType:@"jpg"]]
+              overWritr:YES
+               sourceIp:nil];
+}
+
+- (void)downloadClick
+{
+    [_client downloadFile:@"/我的应用/云酷/test.jpg"
+                      rev:nil];
 }
 
 @end

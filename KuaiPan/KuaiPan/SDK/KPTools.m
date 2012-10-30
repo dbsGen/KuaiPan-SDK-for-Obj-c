@@ -112,6 +112,8 @@ NSString *encodeBase64WithData(NSData *objData) {
          [self encodeWithUTF8:[params objectForKey:key]]];
     }
     
+    NSLog(@"%@", [urlHeader stringByAppendingString:[self encodeWithUTF8:paramsString]]);
+    
     return [self encodeWithHMAC_SHA1:
             [urlHeader stringByAppendingString:[self encodeWithUTF8:paramsString]]
                               secret:secret];

@@ -81,8 +81,11 @@
 - (NSMutableURLRequest *)requestWithMethod:(NSString *)method urlPath:(NSString *)path params:(NSDictionary *)params
 {
     NSMutableDictionary *sourceParams = [self oauthParams];
+    NSMutableDictionary *dataParams = [NSMutableDictionary dictionary];
     [params enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        [sourceParams setObject:obj forKey:key];
+        if ([obj isKindOfClass:[NSData class]]) {
+            [dataParams setObject:obj forKey:key];
+        }else [sourceParams setObject:obj forKey:key];
     }];
     
     NSString *secret = [_oauth.consumerSecret stringByAppendingString:@"&"];
@@ -93,9 +96,87 @@
                                            secret:secret];
     [sourceParams setObject:signature
                      forKey:@"oauth_signature"];
+    if ([method isEqualToString:@"POST"]) {
+        NSMutableString *newPath = [path mutableCopy];
+        [newPath appendString:@"?"];
+        __block BOOL first = YES;
+        [sourceParams enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+            if (first) {
+                first = NO;
+                [newPath appendFormat:@"%@=%@", key, obj];
+            }else {
+                [newPath appendFormat:@"&%@=%@", key, obj];
+            }
+        }];
+        return [[KPTools httpClient] multipartFormRequestWithMethod:method
+                                                               path:[newPath stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
+                                                         parameters:nil
+                                          constructingBodyWithBlock:^(id<AFMultipartFormData> formData)
+                {
+                    [dataParams enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                        [formData appendPartWithFileData:obj
+                                                    name:key
+                                                fileName:key
+                                                mimeType:@"Multipart/form-data"];
+                    }];
+                }];
+    }
     return [[KPTools httpClient] requestWithMethod:method
-                                              path:path
+                                              path:[path stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
                                         parameters:sourceParams];
+}
+
+- (NSMutableURLRequest *)requestWithMethod:(NSString *)method
+                                   urlPath:(NSString *)path
+                                    params:(NSDictionary *)params
+                                   baseUrl:(NSString *)baseUrl
+{
+    NSMutableDictionary *sourceParams = [self oauthParams];
+    NSMutableDictionary *dataParams = [NSMutableDictionary dictionary];
+    [params enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        if ([obj isKindOfClass:[NSData class]]) {
+            [dataParams setObject:obj forKey:key];
+        }else [sourceParams setObject:obj forKey:key];
+    }];
+    
+    NSString *secret = [_oauth.consumerSecret stringByAppendingString:@"&"];
+    if (_oauthInfo.oauthTokenSecret) secret = [secret stringByAppendingString:_oauthInfo.oauthTokenSecret];
+    NSString *signature = [KPTools oauthSignature:method
+                                              url:[baseUrl stringByAppendingString:path]
+                                           params:sourceParams
+                                           secret:secret];
+    [sourceParams setObject:signature
+                     forKey:@"oauth_signature"];
+    AFHTTPClient *client = [[AFHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:baseUrl]];
+    if ([method isEqualToString:@"POST"]) {
+        NSMutableString *newPath = [path mutableCopy];
+        [newPath appendString:@"?"];
+        __block BOOL first = YES;
+        [sourceParams enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+            if (first) {
+                first = NO;
+                [newPath appendFormat:@"%@=%@", key, obj];
+            }else {
+                [newPath appendFormat:@"&%@=%@", key, obj];
+            }
+        }];
+        
+        return [client multipartFormRequestWithMethod:method
+                                                 path:[newPath stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
+                                           parameters:nil
+                            constructingBodyWithBlock:^(id<AFMultipartFormData> formData)
+                {
+                    [dataParams enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                        [formData appendPartWithFileData:obj
+                                                    name:key
+                                                fileName:key
+                                                mimeType:@"Multipart/form-data"];
+                    }];
+                }];
+    }
+    return [client requestWithMethod:method
+                                path:[path stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
+                          parameters:sourceParams];
 }
 
 - (void)checkAccountInfo
@@ -156,7 +237,8 @@
                    forKey:@"sort_by"];
     }
     NSMutableURLRequest *request = [self requestWithMethod:@"GET"
-                                                   urlPath:[kMetadataURLAdd stringByAppendingString:path]
+                                                   urlPath:[kMetadataURLAdd stringByAppendingString:
+                                                            [NSString stringWithFormat:@"/%@%@",self.root,path]]
                                                     params:params];
     AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
     
@@ -177,9 +259,9 @@
     [self.queue addOperation:operation];
 }
 
-- (void)createFolderWithRoot:(NSString *)root path:(NSString *)path
+- (void)createFolderWithPath:(NSString *)path
 {
-    NSDictionary *params = @{@"root" : root, @"path" : path};
+    NSDictionary *params = @{@"root" : self.root, @"path" : path};
     NSMutableURLRequest *request = [self requestWithMethod:@"GET"
                                                    urlPath:kCreateFolderURLAdd
                                                     params:params];
@@ -202,6 +284,182 @@
     [self.queue addOperation:operation];
 }
 
+- (void)getShareAddress:(NSString *)path name:(NSString *)name accessToken:(NSString *)accessToken
+{
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    if (name) {
+        [params setObject:name
+                   forKey:@"name"];
+    }
+    if (accessToken) {
+        [params setObject:accessToken
+                   forKey:@"access_code"];
+    }
+    
+    NSMutableURLRequest *request = [self requestWithMethod:@"GET"
+                                                   urlPath:[kShareLinkURLAdd stringByAppendingFormat:
+                                                            @"/%@%@", self.root, path]
+                                                    params:params];
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    
+    __unsafe_unretained KPClient *this = self;
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        if ([this.delegate respondsToSelector:@selector(client:getShareLink:withError:)]) {
+            [this.delegate client:this
+                     getShareLink:[responseObject JSONValue]
+                        withError:nil];
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        if ([this.delegate respondsToSelector:@selector(client:getShareLink:withError:)]) {
+            [this.delegate client:this
+                     getShareLink:nil
+                        withError:error];
+        }
+    }];
+    [self.queue addOperation:operation];
+}
+
+- (void)fileHistory:(NSString *)path
+{
+    NSMutableURLRequest *request = [self requestWithMethod:@"GET"
+                                                   urlPath:[kFileHistoryURLAdd stringByAppendingFormat:
+                                                            @"/%@%@", self.root, path]
+                                                    params:nil];
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    
+    __unsafe_unretained KPClient *this = self;
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        if ([this.delegate respondsToSelector:@selector(client:fileHistory:withError:)]) {
+            [this.delegate client:this
+                     fileHistory:[responseObject JSONValue]
+                        withError:nil];
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        if ([this.delegate respondsToSelector:@selector(client:fileHistory:withError:)]) {
+            [this.delegate client:this
+                     fileHistory:nil
+                        withError:error];
+        }
+    }];
+    [self.queue addOperation:operation];
+}
+
+- (void)deleteFile:(NSString *)path toRecycle:(NSString *)toRecycle
+{
+    NSDictionary *params = @{@"root" : self.root, @"path" : path, @"to_recycle" : toRecycle};
+    NSMutableURLRequest *request = [self requestWithMethod:@"GET"
+                                                   urlPath:kFileDeleteURLAdd
+                                                    params:params];
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    
+    __unsafe_unretained KPClient *this = self;
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        if ([this.delegate respondsToSelector:@selector(client:deleteFile:withError:)]) {
+            [this.delegate client:this
+                       deleteFile:[responseObject JSONValue]
+                        withError:nil];
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        if ([this.delegate respondsToSelector:@selector(client:deleteFile:withError:)]) {
+            [this.delegate client:this
+                       deleteFile:nil
+                        withError:error];
+        }
+    }];
+    [self.queue addOperation:operation];
+}
+
+- (void)uploadFile:(NSString *)path file:(NSData *)file overWritr:(BOOL)overWrite sourceIp:(NSString *)sourceIp
+{
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    if (sourceIp) {
+        [params setObject:sourceIp forKey:@"source_ip"];
+    }
+    NSMutableURLRequest *request = [self requestWithMethod:@"GET"
+                                                   urlPath:kUploadLocateURLAdd
+                                                    params:params
+                                                   baseUrl:kFileServerBaseURLString];
+    AFHTTPRequestOperation *opretion = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    
+    __unsafe_unretained KPClient *this = self;
+    [opretion setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
+    {
+        NSDictionary *result = [responseObject JSONValue];
+        NSString *stat = [result objectForKey:@"stat"];
+        
+        if ([stat isEqualToString:@"OK"]) {
+            NSString *url = [result objectForKey:@"url"];
+            NSLog(@"%@", url);
+            NSDictionary *params =
+            @{
+            @"overwrite"    : overWrite ? @"true" : @"false",
+            @"file"         : file,
+            @"root"         : self.root,
+            @"path"         : path
+            };
+            NSMutableURLRequest *request = [self requestWithMethod:@"POST"
+                                                           urlPath:kUploadFileURLAdd
+                                                            params:params
+                                                           baseUrl:url];
+            AFHTTPRequestOperation *opretion = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+            [opretion setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+                if ([this.delegate respondsToSelector:@selector(client:uploadFile:withError:)]) {
+                    [this.delegate client:self
+                               uploadFile:[responseObject JSONValue]
+                                withError:nil];
+                }
+            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                if ([this.delegate respondsToSelector:@selector(client:uploadFile:withError:)]) {
+                    [this.delegate client:self
+                               uploadFile:nil
+                                withError:error];
+                }
+            }];
+            [this.queue addOperation:opretion];
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error)
+    {
+        if ([this.delegate respondsToSelector:@selector(client:uploadFile:withError:)]) {
+            [this.delegate client:self
+                       uploadFile:nil
+                        withError:error];
+        }
+    }];
+    [self.queue addOperation:opretion];
+}
+
+- (void)downloadFile:(NSString *)path rev:(NSString *)rev
+{
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                   self.root, @"root", path, @"path", nil];
+    if (rev) {
+        [params setObject:rev forKey:@"rev"];
+    }
+    
+    NSMutableURLRequest *request = [self requestWithMethod:@"GET"
+                                                   urlPath:kDownloadFileURLAdd
+                                                    params:params
+                                                   baseUrl:kFileServerBaseURLString];
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    
+    __unsafe_unretained KPClient *this = self;
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        if ([this.delegate respondsToSelector:@selector(client:downloadFile:withError:)]) {
+            [this.delegate client:self
+                     downloadFile:responseObject
+                        withError:nil];
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        if ([this.delegate respondsToSelector:@selector(client:downloadFile:withError:)]) {
+            [this.delegate client:self
+                     downloadFile:nil
+                        withError:error];
+        }
+    }];
+    [self.queue addOperation:operation];
+}
+
+
 #pragma mark - private
 
 - (NSMutableDictionary *)oauthParams
@@ -213,6 +471,16 @@
     @"oauth_version"            : kKuaiPanApiVersion,
     @"oauth_token"              : _oauthInfo.oauthToken} mutableCopy];
     
+}
+
+#pragma mark - getter and setter
+
+- (NSString *)root
+{
+    if (!_root) {
+        _root = @"app_folder";
+    }
+    return _root;
 }
 
 @end

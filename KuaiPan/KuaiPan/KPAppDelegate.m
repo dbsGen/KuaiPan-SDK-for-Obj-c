@@ -19,6 +19,7 @@
     self.viewController = [[KPViewController alloc] initWithNibName:@"KPViewController" bundle:nil];
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
+    
     return YES;
 }
 

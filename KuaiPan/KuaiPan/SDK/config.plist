@@ -6,6 +6,8 @@
 	<string>1.0</string>
 	<key>AuthorizeURLString</key>
 	<string>https://www.kuaipan.cn/api.php</string>
+	<key>FileServerBaseURLString</key>
+	<string>http://api-content.dfs.kuaipan.cn/</string>
 	<key>BaseURLString</key>
 	<string>https://openapi.kuaipan.cn/</string>
 	<key>RequestTokenURLAdd</key>
@@ -18,5 +20,17 @@
 	<string>1/metadata</string>
 	<key>CreateFolderURLAdd</key>
 	<string>1/fileops/create_folder</string>
+	<key>ShareLinkURLAdd</key>
+	<string>1/shares</string>
+	<key>FileHistoryURLAdd</key>
+	<string>1/history</string>
+	<key>FileDeleteURLAdd</key>
+	<string>1/fileops/delete</string>
+	<key>UploadLocateURLAdd</key>
+	<string>1/fileops/upload_locate</string>
+	<key>UploadFileURLAdd</key>
+	<string>1/fileops/upload_file</string>
+	<key>DownloadFileURLAdd</key>
+	<string>1/fileops/download_file</string>
 </dict>
 </plist>
